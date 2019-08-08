@@ -1,0 +1,7 @@
+multiprocessing
+praw
+pymongo
+requests
+six
+update-checker
+wsgiref
