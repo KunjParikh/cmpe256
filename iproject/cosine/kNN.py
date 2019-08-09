@@ -6,6 +6,7 @@ from pprint import pprint
 import inspect
 import pandas as pd
 from sklearn.neighbors import NearestNeighbors
+from sklearn.decomposition import PCA
 
 def createDataframe():
     db = Redditdb()
@@ -26,6 +27,12 @@ def findNeighbors(df, username):
     dist, ind = neigh.kneighbors(df.loc[username].values.reshape(1,-1))
     names = [df.iloc[i].index for i in ind]
     return names[0][1:], 1/(dist[0][1:])
+
+def transform_df(df):
+    pca = PCA(n_components=10, svd_solver='full')
+    index = df.index
+    tmp = pca.fit_transform(df)
+    return pd.DataFrame(tmp, index=index)
 
 def getRecommendedSubreddit(df, names, similarities, username):
     result = pd.Series()
@@ -52,7 +59,8 @@ if __name__ == "__main__":
     dataset.getComments(username)
 
     df = createDataframe()
-    names, sim = findNeighbors(df, username)
+    df2 = transform_df(df)
+    names, sim = findNeighbors(df2, username)
     rec = getRecommendedSubreddit(df, names, sim, username)
     print("Recommended subreddit for user {} is {}".format(username, rec[0]))
 
